@@ -1,0 +1,942 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>China Food 🍜</title>
+
+<style>
+:root {
+  --red: #bd3027;
+  --dark-red: #812019;
+  --gold: #ffc857;
+  --cream: #fff5df;
+  --ink: #48271f;
+  --green: #38845b;
+}
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: "Trebuchet MS", Arial, sans-serif;
+  color: var(--ink);
+  background:
+    radial-gradient(circle at top left, #ffe8b7, transparent 40%),
+    #fff2dd;
+}
+button { font: inherit; cursor: pointer; }
+button:disabled { opacity: .45; cursor: not-allowed; }
+
+.top {
+  padding: 22px 15px;
+  text-align: center;
+  color: white;
+  background: linear-gradient(135deg, #9d211d, #d94b32);
+  border-bottom: 6px solid var(--gold);
+}
+.top h1 { margin: 0; font-size: clamp(28px, 5vw, 44px); }
+.top p { margin: 8px 0 0; }
+
+.stats {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  padding: 14px;
+}
+.stat {
+  background: white;
+  border: 2px solid #efd7b1;
+  border-radius: 14px;
+  padding: 10px 16px;
+  box-shadow: 0 3px 0 #e8d1ad;
+  font-weight: bold;
+}
+.stat span { color: var(--red); }
+
+.layout {
+  max-width: 1150px;
+  padding: 12px;
+  margin: auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(260px, .8fr);
+  gap: 16px;
+}
+.panel {
+  background: rgba(255,255,255,.94);
+  border: 2px solid #efd8b8;
+  border-radius: 20px;
+  padding: 17px;
+  box-shadow: 0 5px 0 #ead3b5;
+  margin-bottom: 16px;
+}
+h2 { margin: 0 0 13px; font-size: 21px; }
+
+.customer {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  background: #fff0cb;
+  padding: 13px;
+  border-radius: 16px;
+}
+.face {
+  font-size: 54px;
+  animation: bob 1.8s infinite ease-in-out;
+}
+@keyframes bob {
+  0%,100% { transform: translateY(0) rotate(-3deg); }
+  50% { transform: translateY(-5px) rotate(3deg); }
+}
+.bubble {
+  flex: 1;
+  background: white;
+  border-radius: 15px;
+  padding: 12px;
+  position: relative;
+}
+.bubble strong { display: block; margin-bottom: 5px; }
+.small { color: #846958; font-size: 13px; }
+
+.bar {
+  height: 12px;
+  background: #ead9c4;
+  border-radius: 20px;
+  overflow: hidden;
+  margin-top: 10px;
+}
+#patience {
+  height: 100%;
+  width: 100%;
+  background: #50a968;
+  transition: width .3s, background .3s;
+}
+
+.recipe {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px;
+  background: #fff9ef;
+  border: 2px dashed #e9c79c;
+  border-radius: 15px;
+  margin-top: 12px;
+}
+.recipe-emoji { font-size: 43px; }
+.recipe p { margin: 5px 0; }
+.tag {
+  display: inline-block;
+  padding: 4px 9px;
+  background: #f8e4bd;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.ingredients {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 9px;
+}
+.ingredient {
+  min-width: 0;
+  border: 2px solid #edd9bd;
+  background: #fffaf1;
+  border-radius: 13px;
+  padding: 9px 4px;
+  text-align: center;
+  color: var(--ink);
+  touch-action: manipulation;
+}
+.ingredient:hover { border-color: var(--red); }
+.ingredient:active { transform: scale(.96); }
+.ingredient .emoji { display: block; font-size: 30px; }
+.ingredient .iname { display: block; font-size: 12px; font-weight: bold; }
+.ingredient .stock { display: block; font-size: 11px; margin-top: 4px; color: #806c57; }
+.ingredient.selected { border-color: var(--green); background: #e8f7e9; }
+
+.counter {
+  margin-left: auto;
+  font-size: 12px;
+  background: white;
+  padding: 5px 8px;
+  border-radius: 10px;
+}
+
+.kitchen {
+  background: linear-gradient(#dba36d, #c8884e);
+  border: 5px solid #986037;
+  border-radius: 17px;
+  padding: 15px;
+}
+.kitchen h3 { margin: 0 0 6px; }
+#dropzone {
+  min-height: 155px;
+  padding: 12px;
+  background: #fff6e6;
+  border: 3px dashed #c99b68;
+  border-radius: 14px;
+  text-align: center;
+  transition: .2s;
+}
+#dropzone.over { background: #e4f6df; border-color: var(--green); }
+#prepared {
+  min-height: 65px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 7px;
+  padding: 8px 0;
+}
+.chip {
+  background: white;
+  border: 1px solid #e5c7a3;
+  border-radius: 12px;
+  padding: 8px;
+  font-size: 22px;
+}
+.action {
+  width: 100%;
+  border: 0;
+  border-radius: 12px;
+  padding: 13px;
+  font-weight: bold;
+  margin-top: 9px;
+}
+.primary { color: white; background: var(--red); }
+.primary:hover { background: var(--dark-red); }
+.secondary { background: #ffe1a0; color: #58351c; }
+.green { background: var(--green); color: white; }
+
+.shop-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 9px;
+}
+.shop-item {
+  background: #fff9ef;
+  border: 1px solid #ead5b5;
+  border-radius: 12px;
+  padding: 10px;
+  text-align: center;
+}
+.shop-item .emoji { font-size: 27px; }
+.shop-item p { margin: 5px 0; font-size: 13px; font-weight: bold; }
+.shop-item button {
+  width: 100%;
+  border: 0;
+  border-radius: 9px;
+  padding: 8px 4px;
+  color: white;
+  background: #b77b28;
+  font-size: 12px;
+  font-weight: bold;
+}
+#message {
+  min-height: 40px;
+  text-align: center;
+  padding: 12px;
+  font-weight: bold;
+  color: #7e291f;
+}
+.hidden { display: none !important; }
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  background: rgba(51,23,16,.78);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+}
+.modal {
+  max-width: 420px;
+  width: 100%;
+  padding: 28px;
+  border-radius: 23px;
+  text-align: center;
+  background: var(--cream);
+  border: 4px solid var(--gold);
+}
+.modal .big { font-size: 65px; }
+.modal h2 { font-size: 28px; }
+footer { text-align: center; padding: 20px; color: #856c57; font-size: 13px; }
+
+@media(max-width: 720px) {
+  .layout { grid-template-columns: 1fr; padding: 10px; }
+  .ingredients { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .panel { padding: 13px; }
+  .stats { gap: 7px; }
+  .stat { padding: 9px; font-size: 13px; }
+}
+</style>
+</head>
+
+<body>
+
+<header class="top">
+  <h1>🏮 China Food 🥢</h1>
+  <p>¡Tu restaurante, tus recetas, tus reglas!</p>
+</header>
+
+<div class="stats">
+  <div class="stat">🪙 Monedas: <span id="coins">30</span></div>
+  <div class="stat">⭐ Puntos: <span id="score">0</span></div>
+  <div class="stat">🧾 Pedidos: <span id="orders">0</span></div>
+  <div class="stat">⏱️ Tiempo: <span id="time">90</span>s</div>
+  <div class="stat">🔥 Nivel: <span id="level">1</span></div>
+</div>
+
+<main class="layout">
+  <section>
+    <div class="panel">
+      <h2>🧑‍🍳 Tu cliente</h2>
+      <div class="customer">
+        <div id="face" class="face">😊</div>
+        <div class="bubble">
+          <strong id="customerName">Señor/a cliente</strong>
+          <span id="customerText">¡Hola! Tengo hambre.</span>
+          <div class="bar"><div id="patience"></div></div>
+          <div class="small" id="patienceText">Paciencia: 100%</div>
+        </div>
+      </div>
+
+      <div class="recipe">
+        <div id="recipeEmoji" class="recipe-emoji">🍚</div>
+        <div>
+          <span class="tag">PEDIDO ACTUAL</span>
+          <h3 id="recipeName">Arroz frito</h3>
+          <p id="recipeDescription" class="small"></p>
+          <strong id="reward">Recompensa: 12 monedas</strong>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>🥬 Ingredientes</h2>
+      <p class="small">Arrastra un ingrediente a la cocina o tócalo para agregarlo. Necesitas tener existencias.</p>
+      <div id="ingredients" class="ingredients"></div>
+    </div>
+
+    <div class="panel">
+      <h2>🍳 Zona de preparación</h2>
+      <div class="kitchen">
+        <h3>👩‍🍳 Tu cocina</h3>
+        <p class="small">Agrega los ingredientes que pide la receta.</p>
+        <div id="dropzone">
+          <strong>⬇️ Arrastra aquí los ingredientes</strong>
+          <div id="prepared"></div>
+          <span id="emptyText" class="small">¡Tu sartén está esperando!</span>
+        </div>
+        <button class="action secondary" onclick="cook()">🔥 Cocinar plato</button>
+        <button class="action primary" onclick="serve()">🍽️ Servir al cliente</button>
+        <button class="action secondary" onclick="clearKitchen()">🧹 Vaciar cocina</button>
+      </div>
+      <div id="message" aria-live="polite">¡Bienvenido, chef! Prepara tu primer pedido.</div>
+    </div>
+  </section>
+
+  <aside>
+    <div class="panel">
+      <h2>🛒 Tienda de ingredientes</h2>
+      <p class="small">Compra provisiones con tus monedas. Cada compra agrega 3 unidades.</p>
+      <div id="shop" class="shop-grid"></div>
+    </div>
+
+    <div class="panel">
+      <h2>📜 Libro de recetas</h2>
+      <div id="recipeBook"></div>
+    </div>
+
+    <div class="panel">
+      <h2>💡 Cómo jugar</h2>
+      <p>1. Mira el pedido del cliente.</p>
+      <p>2. Agrega cada ingrediente requerido.</p>
+      <p>3. Pulsa <b>Cocinar plato</b>.</p>
+      <p>4. Si está correcto, sírvelo para ganar monedas.</p>
+      <p>5. Compra más ingredientes y supera nuevos niveles.</p>
+      <p class="small">¡Los clientes se impacientan! Cuanto más subas de nivel, menos tiempo tendrás.</p>
+    </div>
+  </aside>
+</main>
+
+<div id="endScreen" class="overlay hidden">
+  <div class="modal">
+    <div class="big">🏆</div>
+    <h2>¡Fin del turno!</h2>
+    <p id="finalText"></p>
+    <button class="action primary" onclick="restart()">🔄 Jugar otra vez</button>
+  </div>
+</div>
+
+<footer>🐼 China Food · Un pequeño juego hecho con HTML, CSS y JavaScript.</footer>
+
+<script>
+"use strict";
+
+// ===== DATOS DEL JUEGO =====
+
+const ingredientData = {
+  rice:   { name: "Arroz", emoji: "🍚", cost: 4 },
+  noodle: { name: "Fideos", emoji: "🍜", cost: 5 },
+  veg:    { name: "Verduras", emoji: "🥦", cost: 3 },
+  egg:    { name: "Huevo", emoji: "🥚", cost: 3 },
+  chicken:{ name: "Pollo", emoji: "🍗", cost: 6 },
+  shrimp: { name: "Camarón", emoji: "🦐", cost: 7 },
+  dough:  { name: "Masa", emoji: "🥟", cost: 4 },
+  fish:   { name: "Pescado", emoji: "🐟", cost: 6 }
+};
+
+const recipes = [
+  {
+    name: "Arroz frito",
+    emoji: "🍛",
+    description: "Arroz, huevo y verduras.",
+    ingredients: ["rice", "egg", "veg"],
+    reward: 12
+  },
+  {
+    name: "Ramen",
+    emoji: "🍜",
+    description: "Fideos, huevo y pollo.",
+    ingredients: ["noodle", "egg", "chicken"],
+    reward: 15
+  },
+  {
+    name: "Dumplings",
+    emoji: "🥟",
+    description: "Masa, verduras y pollo.",
+    ingredients: ["dough", "veg", "chicken"],
+    reward: 14
+  },
+  {
+    name: "Fideos con camarón",
+    emoji: "🍤",
+    description: "Fideos, camarón y verduras.",
+    ingredients: ["noodle", "shrimp", "veg"],
+    reward: 18
+  },
+  {
+    name: "Pescado con arroz",
+    emoji: "🐟",
+    description: "Pescado, arroz y verduras.",
+    ingredients: ["fish", "rice", "veg"],
+    reward: 17
+  },
+  {
+    name: "Pollo con arroz",
+    emoji: "🍗",
+    description: "Pollo, arroz y huevo.",
+    ingredients: ["chicken", "rice", "egg"],
+    reward: 16
+  }
+];
+
+const names = [
+  "Mei 🌸", "Chen 🐼", "Li 🐉", "Wei 🥢",
+  "Xiao 🏮", "Lin 🧋", "Ming 🥠", "Bao 🐯"
+];
+
+const faces = ["😊", "😋", "🙂", "🥹", "😄"];
+
+// ===== ESTADO =====
+
+let inventory = {};
+let coins = 30;
+let score = 0;
+let orders = 0;
+let timeLeft = 90;
+let level = 1;
+let currentRecipe = null;
+let customerName = "";
+let patience = 100;
+let cooked = false;
+let gameOver = true;
+let selectedIngredient = null;
+let lastRecipeIndex = -1;
+let timerId = null;
+let patienceId = null;
+let customerSerial = 0;
+let roundSerial = 0;
+let bestScore = 0;
+
+try {
+  bestScore = Number(localStorage.getItem("chinaFoodBest")) || 0;
+} catch (e) {}
+
+function el(id) {
+  return document.getElementById(id);
+}
+
+function randomItem(list) {
+  return list[Math.floor(Math.random() * list.length)];
+}
+
+function say(message) {
+  el("message").textContent = message;
+}
+
+function initInventory() {
+  inventory = {
+    rice: 5, noodle: 3, veg: 5, egg: 4,
+    chicken: 3, shrimp: 2, dough: 3, fish: 2
+  };
+}
+
+// ===== INTERFAZ =====
+
+function renderIngredients() {
+  const container = el("ingredients");
+  container.innerHTML = "";
+
+  Object.entries(ingredientData).forEach(([id, item]) => {
+    const btn = document.createElement("button");
+    btn.className = "ingredient";
+    btn.draggable = true;
+    btn.type = "button";
+    btn.innerHTML = `
+      <span class="emoji">${item.emoji}</span>
+      <span class="iname">${item.name}</span>
+      <span class="stock">Existencias: ${inventory[id] || 0}</span>
+    `;
+
+    btn.addEventListener("dragstart", event => {
+      if (gameOver || cooked || (inventory[id] || 0) < 1) {
+        event.preventDefault();
+        return;
+      }
+      selectedIngredient = id;
+      event.dataTransfer.setData("text/plain", id);
+      event.dataTransfer.effectAllowed = "copy";
+    });
+
+    btn.addEventListener("click", () => addIngredient(id));
+    container.appendChild(btn);
+  });
+}
+
+function renderShop() {
+  const container = el("shop");
+  container.innerHTML = "";
+
+  Object.entries(ingredientData).forEach(([id, item]) => {
+    const card = document.createElement("div");
+    card.className = "shop-item";
+
+    const btn = document.createElement("button");
+    btn.textContent = `Comprar 3 · 🪙 ${item.cost * 3}`;
+    btn.disabled = gameOver || coins < item.cost * 3;
+    btn.onclick = () => buyIngredient(id);
+
+    const emoji = document.createElement("div");
+    emoji.className = "emoji";
+    emoji.textContent = item.emoji;
+
+    const name = document.createElement("p");
+    name.textContent = item.name;
+
+    card.append(emoji, name, btn);
+    container.appendChild(card);
+  });
+}
+
+function renderRecipeBook() {
+  const book = el("recipeBook");
+  book.innerHTML = "";
+
+  recipes.forEach(recipe => {
+    const row = document.createElement("div");
+    row.className = "recipe";
+    row.style.marginTop = "8px";
+    row.innerHTML = `
+      <div class="recipe-emoji">${recipe.emoji}</div>
+      <div>
+        <strong>${recipe.name}</strong>
+        <div class="small">${recipe.ingredients
+          .map(id => ingredientData[id].emoji).join(" + ")}</div>
+        <span class="tag">🪙 ${recipe.reward}</span>
+      </div>
+    `;
+    book.appendChild(row);
+  });
+}
+
+function updateStats() {
+  el("coins").textContent = coins;
+  el("score").textContent = score;
+  el("orders").textContent = orders;
+  el("time").textContent = Math.max(0, Math.ceil(timeLeft));
+  el("level").textContent = level;
+
+  renderShop();
+}
+
+function renderPrepared() {
+  const area = el("prepared");
+  area.innerHTML = "";
+
+  selectedIngredient = null;
+
+  if (prepared.length === 0) {
+    el("emptyText").classList.remove("hidden");
+  } else {
+    el("emptyText").classList.add("hidden");
+  }
+
+  prepared.forEach((id, index) => {
+    const chip = document.createElement("button");
+    chip.className = "chip";
+    chip.type = "button";
+    chip.title = "Quitar ingrediente";
+    chip.textContent = ingredientData[id].emoji;
+    chip.onclick = () => removeIngredient(index);
+    area.appendChild(chip);
+  });
+}
+
+// ===== COCINA =====
+
+let prepared = [];
+
+function addIngredient(id) {
+  if (gameOver) {
+    say("¡Inicia un turno para cocinar!");
+    return;
+  }
+
+  if (cooked) {
+    say("Tu plato ya está cocinado. Sírvelo o empieza otro pedido.");
+    return;
+  }
+
+  if (!ingredientData[id]) return;
+
+  if ((inventory[id] || 0) <= 0) {
+    say(`Te quedaste sin ${ingredientData[id].name}. ¡Compra más!`);
+    return;
+  }
+
+  inventory[id]--;
+  prepared.push(id);
+  renderIngredients();
+  renderPrepared();
+  updateStats();
+
+  say(`${ingredientData[id].emoji} Agregaste ${ingredientData[id].name}.`);
+}
+
+function removeIngredient(index) {
+  if (gameOver || cooked) return;
+
+  const id = prepared[index];
+  if (!id) return;
+
+  inventory[id] = (inventory[id] || 0) + 1;
+  prepared.splice(index, 1);
+
+  renderIngredients();
+  renderPrepared();
+  updateStats();
+  say("Ingrediente devuelto a tus existencias.");
+}
+
+function clearKitchen() {
+  if (gameOver || cooked) return;
+
+  prepared.forEach(id => {
+    inventory[id] = (inventory[id] || 0) + 1;
+  });
+
+  prepared = [];
+  renderIngredients();
+  renderPrepared();
+  updateStats();
+  say("La cocina está vacía. ¡Puedes empezar de nuevo!");
+}
+
+const dropzone = el("dropzone");
+
+dropzone.addEventListener("dragover", event => {
+  if (!gameOver && !cooked) {
+    event.preventDefault();
+    dropzone.classList.add("over");
+  }
+});
+
+dropzone.addEventListener("dragleave", () => {
+  dropzone.classList.remove("over");
+});
+
+dropzone.addEventListener("drop", event => {
+  event.preventDefault();
+  dropzone.classList.remove("over");
+
+  const id = event.dataTransfer.getData("text/plain");
+  if (id) addIngredient(id);
+});
+
+function cook() {
+  if (gameOver) {
+    say("¡Pulsa jugar otra vez para comenzar!");
+    return;
+  }
+
+  if (cooked) {
+    say("El plato ya está listo. ¡Entrégalo!");
+    return;
+  }
+
+  if (prepared.length === 0) {
+    say("Primero agrega los ingredientes.");
+    return;
+  }
+
+  const needed = [...currentRecipe.ingredients].sort();
+  const actual = [...prepared].sort();
+
+  if (JSON.stringify(needed) !== JSON.stringify(actual)) {
+    say("❌ La receta no está correcta. Revisa los ingredientes y sus cantidades.");
+    el("face").textContent = "🤔";
+    return;
+  }
+
+  cooked = true;
+  el("face").textContent = "🤤";
+  el("customerText").textContent = "¡Mmm, se ve delicioso! ¡Lo quiero!";
+  say(`🔥 ¡${currentRecipe.name} está listo! Ahora sírvelo.`);
+}
+
+// ===== CLIENTES Y PEDIDOS =====
+
+function nextRecipe() {
+  let index = Math.floor(Math.random() * recipes.length);
+
+  if (recipes.length > 1 && index === lastRecipeIndex) {
+    index = (index + 1) % recipes.length;
+  }
+
+  lastRecipeIndex = index;
+  currentRecipe = recipes[index];
+}
+
+function newCustomer() {
+  customerSerial++;
+  roundSerial++;
+
+  nextRecipe();
+  customerName = randomItem(names);
+  patience = 100;
+  cooked = false;
+  prepared = [];
+
+  el("face").textContent = randomItem(faces);
+  el("customerName").textContent = customerName;
+  el("customerText").textContent = "¡Hola! Quiero pedir algo rico.";
+  el("recipeEmoji").textContent = currentRecipe.emoji;
+  el("recipeName").textContent = currentRecipe.name;
+  el("recipeDescription").textContent = currentRecipe.description;
+  el("reward").textContent = `Recompensa base: ${currentRecipe.reward} monedas`;
+
+  renderIngredients();
+  renderPrepared();
+  updatePatience();
+  updateStats();
+}
+
+function updatePatience() {
+  el("patience").style.width = patience + "%";
+  el("patience").style.background =
+    patience > 55 ? "#50a968" :
+    patience > 25 ? "#e6a83c" : "#d83a30";
+
+  el("patienceText").textContent =
+    `Paciencia: ${Math.ceil(patience)}%`;
+
+  if (patience > 65) {
+    el("face").textContent = "😊";
+    el("customerText").textContent = "¡Qué rico! Estoy esperando.";
+  } else if (patience > 30) {
+    el("face").textContent = "😐";
+    el("customerText").textContent = "¿Cómo va mi pedido?";
+  } else {
+    el("face").textContent = "😠";
+    el("customerText").textContent = "¡Tengo mucha hambre!";
+  }
+}
+
+function serve() {
+  if (gameOver) {
+    say("¡Empieza un turno para atender clientes!");
+    return;
+  }
+
+  if (!cooked) {
+    say("⚠️ Primero prepara correctamente el plato.");
+    return;
+  }
+
+  // Entrega correcta: el cliente paga y suma puntos.
+  const earned = currentRecipe.reward + Math.floor(level * 2);
+  coins += earned;
+  score += 100 + level * 10;
+  orders++;
+
+  el("face").textContent = "😍";
+  el("customerText").textContent = "¡Está delicioso! Muchas gracias.";
+  say(`🎉 ¡Pedido entregado! +${earned} monedas y +${100 + level * 10} puntos.`);
+
+  try {
+    if (score > bestScore) {
+      bestScore = score;
+      localStorage.setItem("chinaFoodBest", String(bestScore));
+    }
+  } catch (e) {}
+
+  // Aumenta la dificultad cada 3 pedidos.
+  const newLevel = Math.floor(orders / 3) + 1;
+
+  if (newLevel > level) {
+    level = newLevel;
+    say(`🌟 ¡Subiste al nivel ${level}! Los clientes tendrán menos paciencia.`);
+  }
+
+  updateStats();
+
+  const servedRound = roundSerial;
+  setTimeout(() => {
+    if (gameOver || servedRound !== roundSerial) return;
+    newCustomer();
+    say("🔔 ¡Llegó otro cliente! Prepara su pedido.");
+  }, 1100);
+}
+
+// ===== TIENDA =====
+
+function buyIngredient(id) {
+  if (gameOver) {
+    say("¡Comienza un turno antes de comprar!");
+    return;
+  }
+
+  const item = ingredientData[id];
+  const cost = item.cost * 3;
+
+  if (coins < cost) {
+    say("💸 No tienes suficientes monedas para esa compra.");
+    return;
+  }
+
+  coins -= cost;
+  inventory[id] = (inventory[id] || 0) + 3;
+
+  renderIngredients();
+  updateStats();
+  say(`🛒 Compraste 3 unidades de ${item.name}.`);
+}
+
+// ===== TIEMPO Y DIFICULTAD =====
+
+function startTimer() {
+  clearInterval(timerId);
+  clearInterval(patienceId);
+
+  timerId = setInterval(() => {
+    if (gameOver) return;
+
+    timeLeft--;
+
+    if (timeLeft <= 0) {
+      timeLeft = 0;
+      updateStats();
+      endGame();
+      return;
+    }
+
+    updateStats();
+  }, 1000);
+
+  patienceId = setInterval(() => {
+    if (gameOver || cooked) return;
+
+    // La paciencia baja más rápido en niveles altos.
+    patience = Math.max(0, patience - (1.8 + level * 0.5));
+    updatePatience();
+
+    if (patience <= 0) {
+      // Penalización por dejar ir al cliente.
+      score = Math.max(0, score - 20);
+      coins = Math.max(0, coins - 3);
+
+      say("💨 ¡El cliente se fue! Pierdes 20 puntos y 3 monedas.");
+
+      // Evita que se acumulen clientes por varias llamadas.
+      const lostRound = roundSerial;
+      roundSerial++;
+
+      setTimeout(() => {
+        if (gameOver || roundSerial !== lostRound + 1) return;
+        newCustomer();
+      }, 900);
+
+      updateStats();
+    }
+  }, 1000);
+}
+
+// ===== PARTIDA =====
+
+function startGame() {
+  clearInterval(timerId);
+  clearInterval(patienceId);
+
+  coins = 30;
+  score = 0;
+  orders = 0;
+  timeLeft = 90;
+  level = 1;
+  gameOver = false;
+  cooked = false;
+  prepared = [];
+  lastRecipeIndex = -1;
+  roundSerial = 0;
+
+  initInventory();
+  el("endScreen").classList.add("hidden");
+  newCustomer();
+  startTimer();
+  say("🥢 ¡Comienza el turno! Prepara tu primer pedido.");
+}
+
+function endGame() {
+  gameOver = true;
+  clearInterval(timerId);
+  clearInterval(patienceId);
+
+  el("finalText").textContent =
+    `Preparaste ${orders} pedidos, conseguiste ${score} puntos y terminaste con ${coins} monedas. ` +
+    `Tu récord es de ${Math.max(bestScore, score)} puntos.`;
+
+  el("endScreen").classList.remove("hidden");
+  renderIngredients();
+  updateStats();
+}
+
+function restart() {
+  startGame();
+}
+
+// ===== INICIO =====
+
+renderIngredients();
+renderShop();
+renderRecipeBook();
+renderPrepared();
+updateStats();
+
+// La partida empieza automáticamente.
+startGame();
+</script>
+</body>
+</html>
